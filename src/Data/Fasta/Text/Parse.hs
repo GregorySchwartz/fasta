@@ -15,7 +15,7 @@ import Text.Parsec.Text
 import qualified Data.Text as T
 
 -- Local
-import Data.Fasta.Text.Types
+import Data.Fasta.Text
 
 eol  = choice . map (try . string) $ ["\n\r", "\r\n", "\n", "\r"]
 

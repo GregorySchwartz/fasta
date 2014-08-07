@@ -12,7 +12,7 @@ module Data.Fasta.String.Parse (parseFasta, removeNs) where
 import Text.Parsec
 
 -- Local
-import Data.Fasta.String.Types
+import Data.Fasta.String
 
 eol  = choice . map (try . string) $ ["\n\r", "\r\n", "\n", "\r"]
 

@@ -47,7 +47,7 @@ cabal-version:       >=1.8
 
 library
   -- Modules exported by the library.
-  exposed-modules:     Data.Fasta.Text.Parse, Data.Fasta.Text.Types, Data.Fasta.Text.Lazy.Parse, Data.Fasta.Text.Lazy.Types, Data.Fasta.String.Parse, Data.Fasta.String.Types
+  exposed-modules:     Data.Fasta.Text.Parse, Data.Fasta.Text, Data.Fasta.Text.Lazy.Parse, Data.Fasta.Text.Lazy, Data.Fasta.String.Parse, Data.Fasta.String
   
   -- Modules included in this library but not exported.
   -- other-modules:       
