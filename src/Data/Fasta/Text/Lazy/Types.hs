@@ -1,12 +1,12 @@
 -- Types module.
 -- By G.W. Schwartz
 --
--- Collects all application specific types. Used here for Text.
+-- Collects all application specific types. Used here for Text.Lazy
 
-module Data.Fasta.Text.Types where
+module Data.Fasta.Text.Lazy.Types where
 
 -- Built-in
-import qualified Data.Text as T
+import qualified Data.Text.Lazy as T
 
 -- Algebraic
 data FastaSequence = FastaSequence { fastaInfo :: T.Text

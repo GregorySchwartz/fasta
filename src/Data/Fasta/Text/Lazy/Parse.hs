@@ -1,21 +1,21 @@
 -- Parse module.
 -- By G.W. Schwartz
 --
--- | Collection of functions for the parsing of a fasta file. Uses the Text
+-- | Collection of functions for the parsing of a fasta file. Uses the Text.Lazy
 -- type.
 
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Data.Fasta.Text.Parse (parseFasta, removeNs) where
+module Data.Fasta.Text.Lazy.Parse (parseFasta, removeNs) where
 
 -- Built-in
 import Text.Parsec
-import Text.Parsec.Text
-import qualified Data.Text as T
+import Text.Parsec.Text.Lazy
+import qualified Data.Text.Lazy as T
 
 -- Local
-import Data.Fasta.Text.Types
+import Data.Fasta.Text.Lazy.Types
 
 eol  = choice . map (try . string) $ ["\n\r", "\r\n", "\n", "\r"]
 
