@@ -6,7 +6,10 @@
 
 {-# LANGUAGE OverloadedStrings #-}
 
-module Data.Fasta.Text.Parse (parseFasta, parseCLIPFasta, removeNs) where
+module Data.Fasta.Text.Parse ( parseFasta
+                             , parseCLIPFasta
+                             , removeNs
+                             , removeCLIPNs ) where
 
 -- Built-in
 import qualified Data.Map as M
@@ -73,4 +76,11 @@ parseCLIPFasta = M.fromList
 removeNs :: [FastaSequence] -> [FastaSequence]
 removeNs = map (\x -> x { fastaSeq = noN . fastaSeq $ x })
   where
+    noN = T.map (\y -> if (y /= 'N' && y /= 'n') then y else '-')
+
+removeCLIPNs :: CloneMap -> CloneMap
+removeCLIPNs = M.fromList . map remove . M.toList
+  where
+    remove   ((x, y), z)    = ((x, newSeq y), map newSeq z)
+    newSeq x = x { fastaSeq = noN . fastaSeq $ x }
     noN = T.map (\y -> if (y /= 'N' && y /= 'n') then y else '-')
