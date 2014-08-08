@@ -6,37 +6,64 @@
 
 {-# LANGUAGE NoMonomorphismRestriction #-}
 
-module Data.Fasta.String.Parse (parseFasta, removeNs) where
+module Data.Fasta.String.Parse (parseFasta, parseCLIPFasta, removeNs) where
 
 -- Built-in
 import Text.Parsec
+import Control.Monad (void)
 
 -- Local
 import Data.Fasta.String
 
-eol  = choice . map (try . string) $ ["\n\r", "\r\n", "\n", "\r"]
+eol :: Parsec String u  String
+eol = choice . map (try . string) $ ["\n\r", "\r\n", "\n", "\r"]
 
+eoe :: Parsec String u ()
 eoe  = do
-    try (eof >> return '>') <|> (char '>')
+    lookAhead (void $ char '>') <|> eof
 
-entry = do
-    spaces
-    info <- manyTill anyChar eol
-    fseq <- manyTill anyChar (lookAhead eoe)
-    return (FastaSequence { fastaInfo = info, fastaSeq = removeWhitespace fseq })
-  where
-    removeWhitespace = filter (\x -> not . elem x $ "\n\r ")
-
+fasta :: Parsec String u FastaSequence
 fasta = do
     spaces
     char '>'
-    endBy entry eoe
+    info <- manyTill (satisfy (/= '>')) eol
+    fseq <- manyTill anyChar eoe
+    return (FastaSequence {fastaInfo = info, fastaSeq = removeWhitespace fseq})
+  where
+    removeWhitespace = filter (`notElem` "\n\r ")
+
+fastaFile :: Parsec String u [FastaSequence]
+fastaFile = do
+    spaces
+    many fasta
+
+fastaCLIP :: Parsec String u (FastaSequence, [FastaSequence])
+fastaCLIP = do
+    spaces
+    char '>'
+    germline <- fasta
+    clones <- many $ try fasta
+    return (germline, clones)
+
+fastaCLIPFile :: Parsec String u [(FastaSequence, [FastaSequence])]
+fastaCLIPFile = do
+    spaces
+    many fastaCLIP
 
 parseFasta :: String -> [FastaSequence]
-parseFasta = eToV . parse fasta "error"
+parseFasta = eToV . parse fastaFile "error"
   where
     eToV (Right x) = x
-    eToV (Left _)  = error "Unable to parse fasta file"
+    eToV (Left x)  = error ("Unable to parse fasta file\n" ++ show x)
+
+parseCLIPFasta :: String -> [((Int, FastaSequence), [FastaSequence])]
+parseCLIPFasta = map (\(x, (y, z)) -> ((x, y), z))
+               . zip [0..]
+               . eToV
+               . parse fastaCLIPFile "error"
+  where
+    eToV (Right x) = x
+    eToV (Left x)  = error ("Unable to parse fasta file\n" ++ show x)
 
 removeNs :: [FastaSequence] -> [FastaSequence]
 removeNs = map (\x -> x { fastaSeq = noN . fastaSeq $ x })
