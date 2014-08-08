@@ -7,8 +7,17 @@ module Data.Fasta.Text where
 
 -- Built-in
 import qualified Data.Text as T
+import qualified Data.Map as M
+
 
 -- Algebraic
 data FastaSequence = FastaSequence { fastaInfo :: T.Text
                                    , fastaSeq  :: T.Text
                                    } deriving (Eq, Ord, Show)
+
+-- Basic
+type Clone    = FastaSequence
+type Germline = FastaSequence
+
+-- Advanced
+type CloneMap = M.Map (Int, Germline) [Clone]

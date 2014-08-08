@@ -9,6 +9,7 @@
 module Data.Fasta.Text.Parse (parseFasta, parseCLIPFasta, removeNs) where
 
 -- Built-in
+import qualified Data.Map as M
 import Control.Monad (void)
 import Text.Parsec
 import Text.Parsec.Text
@@ -59,8 +60,9 @@ parseFasta = eToV . parse fastaFile "error"
     eToV (Right x) = x
     eToV (Left x)  = error ("Unable to parse fasta file\n" ++ show x)
 
-parseCLIPFasta :: T.Text -> [((Int, FastaSequence), [FastaSequence])]
-parseCLIPFasta = map (\(x, (y, z)) -> ((x, y), z))
+parseCLIPFasta :: T.Text -> CloneMap
+parseCLIPFasta = M.fromList
+               . map (\(x, (y, z)) -> ((x, y), z))
                . zip [0..]
                . eToV
                . parse fastaCLIPFile "error"
