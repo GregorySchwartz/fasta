@@ -10,7 +10,7 @@ name:                fasta
 -- PVP summary:      +-+------- breaking API changes
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
-version:             0.1.0.0
+version:             0.1.1.0
 
 -- A short (one-line) description of the package.
 synopsis:            The fasta type as used by my programs
@@ -47,13 +47,28 @@ cabal-version:       >=1.8
 
 library
   -- Modules exported by the library.
-  exposed-modules:     Data.Fasta.Text.Parse, Data.Fasta.Text, Data.Fasta.Text.Lazy.Parse, Data.Fasta.Text.Lazy, Data.Fasta.String.Parse, Data.Fasta.String
+  exposed-modules:    Data.Fasta.String,
+                      Data.Fasta.String.Types,
+                      Data.Fasta.String.Parse,
+                      Data.Fasta.String.Translation,
+                      Data.Fasta.Text,
+                      Data.Fasta.Text.Types,
+                      Data.Fasta.Text.Parse,
+                      Data.Fasta.Text.Translation,
+                      Data.Fasta.Text.Lazy,
+                      Data.Fasta.Text.Lazy.Types,
+                      Data.Fasta.Text.Lazy.Parse,
+                      Data.Fasta.Text.Lazy.Translation
   
   -- Modules included in this library but not exported.
   -- other-modules:       
   
   -- Other library packages from which modules are imported.
-  build-depends:       base >=4.6, parsec >=3.1, text >=0.11, containers >= 0.4
+  build-depends:       base >=4.6,
+                       parsec >=3.1,
+                       text >=0.11,
+                       containers >= 0.4,
+                       split >= 0.2.2
   
   -- Directories containing source files.
   hs-source-dirs:      src

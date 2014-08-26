@@ -17,7 +17,7 @@ import Text.Parsec
 import Control.Monad (void)
 
 -- Local
-import Data.Fasta.String
+import Data.Fasta.String.Types
 
 eol :: Parsec String u  String
 eol = choice . map (try . string) $ ["\n\r", "\r\n", "\n", "\r"]

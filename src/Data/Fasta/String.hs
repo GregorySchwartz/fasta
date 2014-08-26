@@ -1,21 +1,13 @@
--- Types module.
+-- Data.Fasta.String module.
 -- By G.W. Schwartz
 --
--- Collects all application specific types. Used here for strings.
+-- Collects all application functions and types. Used here for strings.
 
-module Data.Fasta.String where
+module Data.Fasta.String ( module Data.Fasta.String.Types
+                         , module Data.Fasta.String.Parse
+                         , module Data.Fasta.String.Translation ) where
 
--- Built-in
-import qualified Data.Map as M
-
--- Algebraic
-data FastaSequence = FastaSequence { fastaInfo :: String
-                                   , fastaSeq  :: String
-                                   } deriving (Eq, Ord, Show)
-
--- Basic
-type Clone    = FastaSequence
-type Germline = FastaSequence
-
--- Advanced
-type CloneMap = M.Map (Int, Germline) [Clone]
+-- | Local
+import Data.Fasta.String.Types
+import Data.Fasta.String.Parse
+import Data.Fasta.String.Translation
