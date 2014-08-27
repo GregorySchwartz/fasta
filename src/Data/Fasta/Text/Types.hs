@@ -14,7 +14,7 @@ import qualified Data.Map as M
 -- Algebraic
 data FastaSequence = FastaSequence { fastaHeader :: T.Text
                                    , fastaSeq    :: T.Text
-                                   } deriving (Eq, Ord, Show)
+                                   } deriving (Eq, Ord)
 
 -- Basic
 type Clone    = FastaSequence
@@ -25,12 +25,12 @@ type Codon    = T.Text
 type CloneMap = M.Map (Int, Germline) [Clone]
 
 -- Classes
-class ShowText a where
-    showText :: a -> T.Text
+class ShowFasta a where
+    showFasta :: a -> T.Text
 
 -- Instances
-instance ShowText FastaSequence where
-    showText FastaSequence {fastaHeader = x, fastaSeq = y} = T.concat [ ">"
-                                                                      , x
-                                                                      , "\n"
-                                                                      , y ]
+instance ShowFasta FastaSequence where
+    showFasta FastaSequence {fastaHeader = x, fastaSeq = y} = T.concat [ ">"
+                                                                       , x
+                                                                       , "\n"
+                                                                       , y ]
