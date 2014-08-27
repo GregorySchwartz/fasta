@@ -9,8 +9,8 @@ module Data.Fasta.String.Types where
 import qualified Data.Map as M
 
 -- Algebraic
-data FastaSequence = FastaSequence { fastaInfo :: String
-                                   , fastaSeq  :: String
+data FastaSequence = FastaSequence { fastaHeader :: String
+                                   , fastaSeq    :: String
                                    } deriving (Eq, Ord)
 
 -- Basic
@@ -23,4 +23,4 @@ type CloneMap = M.Map (Int, Germline) [Clone]
 
 -- Instances
 instance Show FastaSequence where
-    show FastaSequence {fastaInfo = x, fastaSeq = y} = ">" ++ x ++ "\n" ++ y
+    show FastaSequence {fastaHeader = x, fastaSeq = y} = ">" ++ x ++ "\n" ++ y

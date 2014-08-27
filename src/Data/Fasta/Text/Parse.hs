@@ -32,9 +32,9 @@ fasta :: Parsec T.Text u FastaSequence
 fasta = do
     spaces
     char '>'
-    info <- manyTill (satisfy (/= '>')) eol
+    header <- manyTill (satisfy (/= '>')) eol
     fseq <- manyTill anyChar eoe
-    return (FastaSequence { fastaInfo = T.pack info
+    return (FastaSequence { fastaHeader = T.pack header
                           , fastaSeq = T.pack . removeWhitespace $ fseq } )
   where
     removeWhitespace = filter (`notElem` "\n\r ")

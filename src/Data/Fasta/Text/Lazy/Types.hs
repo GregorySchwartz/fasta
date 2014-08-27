@@ -12,8 +12,8 @@ import qualified Data.Text.Lazy as T
 import qualified Data.Map as M
 
 -- Algebraic
-data FastaSequence = FastaSequence { fastaInfo :: T.Text
-                                   , fastaSeq  :: T.Text
+data FastaSequence = FastaSequence { fastaHeader :: T.Text
+                                   , fastaSeq    :: T.Text
                                    } deriving (Eq, Ord, Show)
 
 -- Basic
@@ -30,7 +30,7 @@ class ShowText a where
 
 -- Instances
 instance ShowText FastaSequence where
-    showText FastaSequence {fastaInfo = x, fastaSeq = y} = T.concat [ ">"
-                                                                    , x
-                                                                    , "\n"
-                                                                    , y ]
+    showText FastaSequence {fastaHeader = x, fastaSeq = y} = T.concat [ ">"
+                                                                      , x
+                                                                      , "\n"
+                                                                      , y ]
