@@ -14,7 +14,7 @@ import qualified Data.Map as M
 -- Algebraic
 data FastaSequence = FastaSequence { fastaHeader :: T.Text
                                    , fastaSeq    :: T.Text
-                                   } deriving (Eq, Ord)
+                                   } deriving (Eq, Ord, Show)
 
 -- Basic
 type Clone    = FastaSequence
