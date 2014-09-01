@@ -12,6 +12,7 @@ module Data.Fasta.Text.Lazy.Translation ( codon2aa
 -- Built in
 import Data.Either
 import qualified Data.Text.Lazy as T
+import Data.Int
 
 -- Local
 import Data.Fasta.Text.Lazy.Types
@@ -51,9 +52,10 @@ codon2aa x
     codon    = T.toUpper x
     errorMsg = T.append "Unidentified codon: " codon
 
--- Translates a string of nucleotides
-translate :: FastaSequence -> Either T.Text FastaSequence
-translate x
+-- Translates a string of nucleotides. Returns a text with the error if the
+-- codon is invalid.
+translate :: Int64 -> FastaSequence -> Either T.Text FastaSequence
+translate pos x
     | any isLeft' translation = Left $ head . lefts $ translation
     | otherwise               = Right $ x { fastaSeq = T.concat
                                                      . rights
@@ -62,6 +64,7 @@ translate x
     translation = map codon2aa
                 . filter ((== 3) . T.length)
                 . T.chunksOf 3
+                . T.drop (pos - 1)
                 . fastaSeq
                 $ x
     isLeft' (Left _) = True

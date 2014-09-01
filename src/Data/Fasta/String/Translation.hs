@@ -51,15 +51,17 @@ codon2aa x
     codon    = map toUpper x
     errorMsg = "Unidentified codon: " ++ codon
 
--- Translates a string of nucleotides
-translate :: FastaSequence -> Either String FastaSequence
-translate x
+-- Translates a string of nucleotides. Returns a string with the error if the
+-- codon is invalid.
+translate :: Int -> FastaSequence -> Either String FastaSequence
+translate pos x
     | any isLeft' translation = Left $ head . lefts $ translation
     | otherwise               = Right $ x { fastaSeq = rights translation }
   where
     translation = map codon2aa
                 . filter ((== 3) . length)
                 . Split.chunksOf 3
+                . drop (pos - 1)
                 . fastaSeq
                 $ x
     isLeft' (Left _) = True
