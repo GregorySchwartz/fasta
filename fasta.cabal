@@ -64,11 +64,11 @@ library
   -- other-modules:       
   
   -- Other library packages from which modules are imported.
-  build-depends:       base >=4.6,
-                       parsec >=3.1,
-                       text >=0.11,
-                       containers >= 0.4,
-                       split >= 0.2.2
+  build-depends:       base ==4.6.*,
+                       parsec ==3.1.*,
+                       text ==0.11.*,
+                       containers == 0.5.*,
+                       split == 0.2.*
   
   -- Directories containing source files.
   hs-source-dirs:      src
