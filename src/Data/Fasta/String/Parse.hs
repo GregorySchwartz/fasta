@@ -13,6 +13,7 @@ module Data.Fasta.String.Parse ( parseFasta
 
 -- Built-in
 import qualified Data.Map as M
+import Data.Char
 import Text.Parsec
 import Control.Monad (void)
 
@@ -33,7 +34,8 @@ fasta = do
     header <- manyTill (satisfy (/= '>')) eol
     fseq <- manyTill anyChar eoe
     return ( FastaSequence { fastaHeader = header
-                           , fastaSeq    = removeWhitespace fseq } )
+                           , fastaSeq    = map toUpper
+                                         $ removeWhitespace fseq } )
   where
     removeWhitespace = filter (`notElem` "\n\r ")
 

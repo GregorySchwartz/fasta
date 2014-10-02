@@ -12,6 +12,7 @@ module Data.Fasta.Text.Lazy.Parse ( parseFasta
                                   , removeCLIPNs ) where
 
 -- Built-in
+import Data.Char
 import Control.Monad (void)
 import qualified Data.Map as M
 import Text.Parsec
@@ -35,7 +36,9 @@ fasta = do
     header <- manyTill (satisfy (/= '>')) eol
     fseq <- manyTill anyChar eoe
     return (FastaSequence { fastaHeader = T.pack header
-                          , fastaSeq = T.pack . removeWhitespace $ fseq } )
+                          , fastaSeq = T.pack
+                                     . map toUpper
+                                     . removeWhitespace $ fseq } )
   where
     removeWhitespace = filter (`notElem` "\n\r ")
 
