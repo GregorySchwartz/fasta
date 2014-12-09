@@ -1,8 +1,9 @@
 -- Parse module.
 -- By G.W. Schwartz
 --
--- | Collection of functions for the parsing of a fasta file. Uses the lazy Text
--- type.
+{- | Collection of functions for the parsing of a fasta file. Uses the lazy Text
+type.
+-}
 
 {-# LANGUAGE OverloadedStrings #-}
 
@@ -60,12 +61,14 @@ fastaCLIPFile = do
     spaces
     many fastaCLIP
 
+-- | Parse a standard fasta file into lazy text sequences
 parseFasta :: T.Text -> [FastaSequence]
 parseFasta = eToV . parse fastaFile "error"
   where
     eToV (Right x) = x
     eToV (Left x)  = error ("Unable to parse fasta file\n" ++ show x)
 
+-- | Parse a CLIP fasta file into lazy text sequences
 parseCLIPFasta :: T.Text -> CloneMap
 parseCLIPFasta = M.fromList
                . map (\(x, (y, z)) -> ((x, y), z))
@@ -76,11 +79,13 @@ parseCLIPFasta = M.fromList
     eToV (Right x) = x
     eToV (Left x)  = error ("Unable to parse fasta file\n" ++ show x)
 
+-- | Remove Ns from a collection of sequences
 removeNs :: [FastaSequence] -> [FastaSequence]
 removeNs = map (\x -> x { fastaSeq = noN . fastaSeq $ x })
   where
     noN = T.map (\y -> if (y /= 'N' && y /= 'n') then y else '-')
 
+-- | Remove Ns from a collection of CLIP fasta sequences
 removeCLIPNs :: CloneMap -> CloneMap
 removeCLIPNs = M.fromList . map remove . M.toList
   where

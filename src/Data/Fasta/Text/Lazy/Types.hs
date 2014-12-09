@@ -1,7 +1,8 @@
 -- Types module.
 -- By G.W. Schwartz
 --
--- Collects all application specific types. Used here for Text.Lazy
+{- | Collects all application specific types. Used here for Text.Lazy
+-}
 
 {-# LANGUAGE OverloadedStrings #-}
 
@@ -22,6 +23,8 @@ type Germline = FastaSequence
 type Codon    = T.Text
 
 -- Advanced
+-- | A clone is a collection of sequences derived from a germline with
+-- a specific identifier
 type CloneMap = M.Map (Int, Germline) [Clone]
 
 -- Classes

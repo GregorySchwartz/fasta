@@ -1,13 +1,14 @@
 -- Data.Fasta.String module.
 -- By G.W. Schwartz
 --
--- Collects all application functions and types. Used here for strings.
+{- | Collects all application functions and types. Used here for strings.
+-}
 
 module Data.Fasta.String ( module Data.Fasta.String.Types
                          , module Data.Fasta.String.Parse
                          , module Data.Fasta.String.Translation ) where
 
--- | Local
+-- Local
 import Data.Fasta.String.Types
 import Data.Fasta.String.Parse
 import Data.Fasta.String.Translation

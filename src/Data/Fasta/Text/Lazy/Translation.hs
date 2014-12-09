@@ -1,8 +1,9 @@
 -- Translation Module
 -- By Gregory W. Schwartz
 
--- Collects all functions pertaining to the translation of nucleotides to
--- amino acids for Lazy Text.
+{- | Collects all functions pertaining to the translation of nucleotides to
+amino acids for Lazy Text.
+-}
 
 {-# LANGUAGE OverloadedStrings #-}
 
@@ -17,7 +18,7 @@ import Data.Int
 -- Local
 import Data.Fasta.Text.Lazy.Types
 
--- Converts a codon to an amino acid
+-- | Converts a codon to an amino acid
 -- Remember, if there is an "N" in that DNA sequence, then it is invalid
 codon2aa :: Codon -> Either T.Text T.Text
 codon2aa x
@@ -52,7 +53,7 @@ codon2aa x
     codon    = T.toUpper x
     errorMsg = T.append "Unidentified codon: " codon
 
--- Translates a string of nucleotides. Returns a text with the error if the
+-- | Translates a string of nucleotides. Returns a text with the error if the
 -- codon is invalid.
 translate :: Int64 -> FastaSequence -> Either T.Text FastaSequence
 translate pos x

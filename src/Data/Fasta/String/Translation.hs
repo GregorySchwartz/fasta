@@ -1,8 +1,9 @@
 -- Translation Module
 -- By Gregory W. Schwartz
 
--- Collects all functions pertaining to the translation of nucleotides to
--- amino acids for strings.
+{- | Collects all functions pertaining to the translation of nucleotides to
+amino acids for strings.
+-}
 
 module Data.Fasta.String.Translation where
 
@@ -16,7 +17,7 @@ import qualified Data.List.Split as Split
 -- Local
 import Data.Fasta.String.Types
 
--- Converts a codon to an amino acid
+-- | Converts a codon to an amino acid
 -- Remember, if there is an "N" in that DNA sequence, then it is invalid
 codon2aa :: Codon -> Either String Char
 codon2aa x
@@ -51,7 +52,7 @@ codon2aa x
     codon    = map toUpper x
     errorMsg = "Unidentified codon: " ++ codon
 
--- Translates a string of nucleotides. Returns a string with the error if the
+-- | Translates a string of nucleotides. Returns a string with the error if the
 -- codon is invalid.
 translate :: Int -> FastaSequence -> Either String FastaSequence
 translate pos x

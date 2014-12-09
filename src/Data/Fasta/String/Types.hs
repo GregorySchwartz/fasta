@@ -1,7 +1,8 @@
 -- Types module.
 -- By G.W. Schwartz
 --
--- Collects all application specific types. Used here for strings.
+{- | Collects all application specific types. Used here for strings.
+-}
 
 module Data.Fasta.String.Types where
 
@@ -19,6 +20,8 @@ type Clone    = FastaSequence
 type Germline = FastaSequence
 
 -- Advanced
+-- | A clone is a collection of sequences derived from a germline with
+-- a specific identifier
 type CloneMap = M.Map (Int, Germline) [Clone]
 
 -- Classes
