@@ -41,7 +41,7 @@ fasta = do
                                      . map toUpper
                                      . removeWhitespace $ fseq } )
   where
-    removeWhitespace = filter (`notElem` "\n\r ")
+    removeWhitespace = filter (`notElem` ("\n\r " :: String))
 
 fastaFile :: Parsec T.Text u [FastaSequence]
 fastaFile = do
