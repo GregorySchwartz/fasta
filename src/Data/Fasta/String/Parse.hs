@@ -82,6 +82,12 @@ removeNs = map (\x -> x { fastaSeq = noN . fastaSeq $ x })
   where
     noN = map (\y -> if (y /= 'N' && y /= 'n') then y else '-')
 
+-- | Remove Ns from a sequence
+removeN :: FastaSequence -> FastaSequence
+removeN x = x { fastaSeq = noN . fastaSeq $ x }
+  where
+    noN = map (\y -> if (y /= 'N' && y /= 'n') then y else '-')
+
 -- | Remove Ns from a collection of CLIP fasta sequences
 removeCLIPNs :: CloneMap -> CloneMap
 removeCLIPNs = M.fromList . map remove . M.toList

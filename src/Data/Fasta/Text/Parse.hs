@@ -6,6 +6,7 @@ type.
 -}
 
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Data.Fasta.Text.Parse ( parseFasta
                              , parseCLIPFasta
@@ -14,7 +15,7 @@ module Data.Fasta.Text.Parse ( parseFasta
 
 -- Built-in
 import Data.Char
-import qualified Data.Map as M
+import qualified Data.Map.Strict as M
 import Control.Monad (void)
 import Text.Parsec
 import Text.Parsec.Text
@@ -72,7 +73,7 @@ parseFasta = eToV . parse fastaFile "error"
 -- | Parse a CLIP fasta file into text sequences
 parseCLIPFasta :: T.Text -> CloneMap
 parseCLIPFasta = M.fromList
-               . map (\(x, (y, z)) -> ((x, y), z))
+               . map (\(!x, (!y, !z)) -> ((x, y), z))
                . zip [0..]
                . eToV
                . parse fastaCLIPFile "error"
@@ -86,10 +87,16 @@ removeNs = map (\x -> x { fastaSeq = noN . fastaSeq $ x })
   where
     noN = T.map (\y -> if (y /= 'N' && y /= 'n') then y else '-')
 
+-- | Remove Ns from a sequence
+removeN :: FastaSequence -> FastaSequence
+removeN x = x { fastaSeq = noN . fastaSeq $ x }
+  where
+    noN = T.map (\y -> if (y /= 'N' && y /= 'n') then y else '-')
+
 -- | Remove Ns from a collection of CLIP fasta sequences
 removeCLIPNs :: CloneMap -> CloneMap
 removeCLIPNs = M.fromList . map remove . M.toList
   where
-    remove   ((x, y), z)    = ((x, newSeq y), map newSeq z)
-    newSeq x = x { fastaSeq = noN . fastaSeq $ x }
+    remove   ((!x, !y), !z)    = ((x, newSeq y), map newSeq z)
+    newSeq !x = x { fastaSeq = noN . fastaSeq $ x }
     noN = T.map (\y -> if (y /= 'N' && y /= 'n') then y else '-')
