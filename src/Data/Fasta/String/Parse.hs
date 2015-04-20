@@ -10,6 +10,7 @@ type.
 module Data.Fasta.String.Parse ( parseFasta
                                , parseCLIPFasta
                                , removeNs
+                               , removeN
                                , removeCLIPNs ) where
 
 -- Built-in

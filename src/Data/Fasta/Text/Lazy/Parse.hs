@@ -11,6 +11,7 @@ type.
 module Data.Fasta.Text.Lazy.Parse ( parseFasta
                                   , parseCLIPFasta
                                   , removeNs
+                                  , removeN
                                   , removeCLIPNs ) where
 
 -- Built-in
