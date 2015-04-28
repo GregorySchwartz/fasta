@@ -6,18 +6,24 @@ type.
 -}
 
 {-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Data.Fasta.String.Parse ( parseFasta
                                , parseCLIPFasta
+                               , pipesFasta
                                , removeNs
                                , removeN
                                , removeCLIPNs ) where
 
 -- Built-in
-import qualified Data.Map as M
 import Data.Char
 import Text.Parsec
 import Control.Monad (void)
+import qualified Data.Map as Map
+import qualified System.IO as IO
+
+-- Cabal
+import Pipes
 
 -- Local
 import Data.Fasta.String.Types
@@ -68,7 +74,7 @@ parseFasta = eToV . parse fastaFile "error"
 
 -- | Parse a CLIP fasta file into string sequences
 parseCLIPFasta :: String -> CloneMap
-parseCLIPFasta = M.fromList
+parseCLIPFasta = Map.fromList
                . map (\(x, (y, z)) -> ((x, y), z))
                . zip [0..]
                . eToV
@@ -76,6 +82,32 @@ parseCLIPFasta = M.fromList
   where
     eToV (Right x) = x
     eToV (Left x)  = error ("Unable to parse fasta file\n" ++ show x)
+
+-- | Parse a standard fasta file into string sequences for pipes. This is
+-- the highly recommeded way of parsing, as it is computationally fast and
+-- uses constant file memory
+pipesFasta :: (MonadIO m) => IO.Handle -> Pipe String FastaSequence m ()
+pipesFasta h = do
+    first <- await
+    getRest first ""
+  where
+    getRest x !acc = do
+        eof <- liftIO $ IO.hIsEOF h
+        if eof
+            then yield FastaSequence { fastaHeader = tail x
+                                     , fastaSeq    = filter
+                                                     (`notElem` "\n\r ")
+                                                     acc }
+            else do
+                y <- await
+                if take 1 y == ">"
+                    then do
+                        yield FastaSequence { fastaHeader = tail x
+                                            , fastaSeq    = filter
+                                                            (`notElem` "\n\r ")
+                                                            acc }
+                        getRest y ""
+                    else getRest x (acc ++ y)
 
 -- | Remove Ns from a collection of sequences
 removeNs :: [FastaSequence] -> [FastaSequence]
@@ -91,7 +123,7 @@ removeN x = x { fastaSeq = noN . fastaSeq $ x }
 
 -- | Remove Ns from a collection of CLIP fasta sequences
 removeCLIPNs :: CloneMap -> CloneMap
-removeCLIPNs = M.fromList . map remove . M.toList
+removeCLIPNs = Map.fromList . map remove . Map.toList
   where
     remove   ((x, y), z)    = ((x, newSeq y), map newSeq z)
     newSeq x = x { fastaSeq = noN . fastaSeq $ x }

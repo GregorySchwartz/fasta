@@ -10,6 +10,7 @@ type.
 
 module Data.Fasta.Text.Lazy.Parse ( parseFasta
                                   , parseCLIPFasta
+                                  , pipesFasta
                                   , removeNs
                                   , removeN
                                   , removeCLIPNs ) where
@@ -17,10 +18,14 @@ module Data.Fasta.Text.Lazy.Parse ( parseFasta
 -- Built-in
 import Data.Char
 import Control.Monad (void)
-import qualified Data.Map.Strict as M
 import Text.Parsec
 import Text.Parsec.Text.Lazy
+import qualified Data.Map.Strict as Map
 import qualified Data.Text.Lazy as T
+import qualified System.IO as IO
+
+-- Cabal
+import Pipes
 
 -- Local
 import Data.Fasta.Text.Lazy.Types
@@ -72,7 +77,7 @@ parseFasta = eToV . parse fastaFile "error"
 
 -- | Parse a CLIP fasta file into lazy text sequences
 parseCLIPFasta :: T.Text -> CloneMap
-parseCLIPFasta = M.fromList
+parseCLIPFasta = Map.fromList
                . map (\(!x, (!y, !z)) -> ((x, y), z))
                . zip [0..]
                . eToV
@@ -80,6 +85,32 @@ parseCLIPFasta = M.fromList
   where
     eToV (Right x) = x
     eToV (Left x)  = error ("Unable to parse fasta file\n" ++ show x)
+
+-- | Parse a standard fasta file into lazy text sequences for pipes. This is
+-- the highly recommeded way of parsing, as it is computationally fast and
+-- uses constant file memory
+pipesFasta :: (MonadIO m) => IO.Handle -> Pipe T.Text FastaSequence m ()
+pipesFasta h = do
+    first <- await
+    getRest first ""
+  where
+    getRest x !acc = do
+        eof <- liftIO $ IO.hIsEOF h
+        if eof
+            then yield FastaSequence { fastaHeader = T.tail x
+                                     , fastaSeq    = T.filter
+                                                     (`notElem` ("\n\r " :: String))
+                                                     acc }
+            else do
+                y <- await
+                if T.take 1 y == ">"
+                    then do
+                        yield FastaSequence { fastaHeader = T.tail x
+                                            , fastaSeq    = T.filter
+                                                            (`notElem` ("\n\r " :: String))
+                                                            acc }
+                        getRest y ""
+                    else getRest x (acc `T.append` y)
 
 -- | Remove Ns from a collection of sequences
 removeNs :: [FastaSequence] -> [FastaSequence]
@@ -95,7 +126,7 @@ removeN x = x { fastaSeq = noN . fastaSeq $ x }
 
 -- | Remove Ns from a collection of CLIP fasta sequences
 removeCLIPNs :: CloneMap -> CloneMap
-removeCLIPNs = M.fromList . map remove . M.toList
+removeCLIPNs = Map.fromList . map remove . Map.toList
   where
     remove   ((!x, !y), !z)    = ((x, newSeq y), map newSeq z)
     newSeq !x = x { fastaSeq = noN . fastaSeq $ x }
