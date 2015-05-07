@@ -10,7 +10,7 @@ name:                fasta
 -- PVP summary:      +-+------- breaking API changes
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
-version:             0.6.0.0
+version:             0.6.1.0
 
 -- A short (one-line) description of the package.
 synopsis:            A simple, mindless parser for fasta files.
@@ -69,7 +69,11 @@ library
                        text >=1.1.0 && <1.4,
                        containers >= 0.5 && <0.6,
                        split >= 0.2 && <0.3,
-                       pipes >= 4.1 && < 4.2
+                       pipes >= 4.1 && < 4.2,
+                       pipes-group >= 1.0 && < 1.1,
+                       pipes-text >= 0.0 && < 0.1,
+                       lens >= 4.9 && < 4.10,
+                       foldl >= 1.0 && < 1.1
   
   -- Directories containing source files.
   hs-source-dirs:      src

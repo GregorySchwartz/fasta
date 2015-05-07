@@ -10,6 +10,7 @@ type.
 
 module Data.Fasta.Text.Lazy.Parse ( parseFasta
                                   , parseCLIPFasta
+                                  , pipesFasta
                                   , removeNs
                                   , removeN
                                   , removeCLIPNs ) where
@@ -20,7 +21,16 @@ import Control.Monad (void)
 import Text.Parsec
 import Text.Parsec.Text.Lazy
 import qualified Data.Map.Strict as Map
+import qualified Data.Text as ST
 import qualified Data.Text.Lazy as T
+
+-- Cabal
+import Pipes
+import qualified Pipes.Prelude as P
+import qualified Pipes.Text as PT
+import qualified Pipes.Group as PG
+import Control.Lens (view)
+import Control.Foldl (purely, mconcat)
 
 -- Local
 import Data.Fasta.Text.Lazy.Types
@@ -80,6 +90,26 @@ parseCLIPFasta = Map.fromList
   where
     eToV (Right x) = x
     eToV (Left x)  = error ("Unable to parse fasta file\n" ++ show x)
+
+-- | Parse a standard fasta file into strict text sequences for pipes. This is
+-- the highly recommeded way of parsing, as it is computationally fast and
+-- uses memory based on line length
+pipesFasta :: (MonadIO m)
+           => Producer ST.Text m ()
+           -> Producer FastaSequence m ()
+pipesFasta p = purely PG.folds mconcat ( view (PT.splits '>')
+                                       . PT.drop (1 :: Int)
+                                       $ p )
+           >-> P.map toFasta
+  where
+    toFasta x = FastaSequence { fastaHeader = T.fromChunks
+                                            . take 1
+                                            . ST.lines
+                                            $ x
+                              , fastaSeq    = T.fromChunks
+                                            . tail
+                                            . ST.lines
+                                            $ x }
 
 -- | Remove Ns from a collection of sequences
 removeNs :: [FastaSequence] -> [FastaSequence]

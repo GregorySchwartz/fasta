@@ -10,17 +10,25 @@ type.
 
 module Data.Fasta.Text.Parse ( parseFasta
                              , parseCLIPFasta
+                             , pipesFasta
                              , removeNs
                              , removeN
                              , removeCLIPNs ) where
 
 -- Built-in
 import Data.Char
-import Control.Monad (void)
 import Text.Parsec
 import Text.Parsec.Text
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as T
+
+-- Cabal
+import Pipes
+import qualified Pipes.Prelude as P
+import qualified Pipes.Text as PT
+import qualified Pipes.Group as PG
+import Control.Lens (view)
+import Control.Foldl (purely, mconcat)
 
 -- Local
 import Data.Fasta.Text.Types
@@ -29,8 +37,7 @@ eol :: Parsec T.Text u String
 eol = choice . map (try . string) $ ["\n\r", "\r\n", "\n", "\r"]
 
 eoe :: Parsec T.Text u ()
-eoe  = do
-    lookAhead (void $ char '>') <|> eof
+eoe = lookAhead (void $ char '>') <|> eof
 
 fasta :: Parsec T.Text u FastaSequence
 fasta = do
@@ -82,17 +89,29 @@ parseCLIPFasta = Map.fromList
     eToV (Right x) = x
     eToV (Left x)  = error ("Unable to parse fasta file\n" ++ show x)
 
+-- | Parse a standard fasta file into strict text sequences for pipes. This is
+-- the highly recommeded way of parsing, as it is computationally fast and
+-- uses memory based on line length
+pipesFasta :: (MonadIO m) => Producer T.Text m () -> Producer FastaSequence m ()
+pipesFasta p = purely PG.folds mconcat ( view (PT.splits '>')
+                                       . PT.drop (1 :: Int)
+                                       $ p )
+           >-> P.map toFasta
+  where
+    toFasta x = FastaSequence { fastaHeader = head . T.lines $ x
+                              , fastaSeq    = T.concat . tail . T.lines $ x }
+
 -- | Remove Ns from a collection of sequences
 removeNs :: [FastaSequence] -> [FastaSequence]
 removeNs = map (\x -> x { fastaSeq = noN . fastaSeq $ x })
   where
-    noN = T.map (\y -> if (y /= 'N' && y /= 'n') then y else '-')
+    noN = T.map (\y -> if y /= 'N' && y /= 'n' then y else '-')
 
 -- | Remove Ns from a sequence
 removeN :: FastaSequence -> FastaSequence
 removeN x = x { fastaSeq = noN . fastaSeq $ x }
   where
-    noN = T.map (\y -> if (y /= 'N' && y /= 'n') then y else '-')
+    noN = T.map (\y -> if y /= 'N' && y /= 'n' then y else '-')
 
 -- | Remove Ns from a collection of CLIP fasta sequences
 removeCLIPNs :: CloneMap -> CloneMap
@@ -100,4 +119,4 @@ removeCLIPNs = Map.fromList . map remove . Map.toList
   where
     remove   ((!x, !y), !z)    = ((x, newSeq y), map newSeq z)
     newSeq !x = x { fastaSeq = noN . fastaSeq $ x }
-    noN = T.map (\y -> if (y /= 'N' && y /= 'n') then y else '-')
+    noN = T.map (\y -> if y /= 'N' && y /= 'n' then y else '-')
