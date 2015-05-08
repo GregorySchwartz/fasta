@@ -28,7 +28,7 @@ import qualified Pipes.Prelude as P
 import qualified Pipes.Text as PT
 import qualified Pipes.Group as PG
 import Control.Lens (view)
-import Control.Foldl (purely, mconcat)
+import qualified Control.Foldl as FL
 
 -- Local
 import Data.Fasta.Text.Types
@@ -93,9 +93,9 @@ parseCLIPFasta = Map.fromList
 -- the highly recommeded way of parsing, as it is computationally fast and
 -- uses memory based on line length
 pipesFasta :: (MonadIO m) => Producer T.Text m () -> Producer FastaSequence m ()
-pipesFasta p = purely PG.folds mconcat ( view (PT.splits '>')
-                                       . PT.drop (1 :: Int)
-                                       $ p )
+pipesFasta p = FL.purely PG.folds FL.mconcat ( view (PT.splits '>')
+                                             . PT.drop (1 :: Int)
+                                             $ p )
            >-> P.map toFasta
   where
     toFasta x = FastaSequence { fastaHeader = head . T.lines $ x
