@@ -58,7 +58,15 @@ library
                       Data.Fasta.Text.Lazy,
                       Data.Fasta.Text.Lazy.Types,
                       Data.Fasta.Text.Lazy.Parse,
-                      Data.Fasta.Text.Lazy.Translation
+                      Data.Fasta.Text.Lazy.Translation,
+                      Data.Fasta.ByteString,
+                      Data.Fasta.ByteString.Types,
+                      Data.Fasta.ByteString.Parse,
+                      Data.Fasta.ByteString.Translation,
+                      Data.Fasta.ByteString.Lazy,
+                      Data.Fasta.ByteString.Lazy.Types,
+                      Data.Fasta.ByteString.Lazy.Parse,
+                      Data.Fasta.ByteString.Lazy.Translation
   
   -- Modules included in this library but not exported.
   -- other-modules:       
@@ -67,11 +75,13 @@ library
   build-depends:       base >=4.6 && <4.9,
                        parsec >=3.1 && <4.0,
                        text >=1.1.0 && <1.4,
+                       bytestring >=0.10 && <0.11,
                        containers >= 0.5 && <0.6,
                        split >= 0.2 && <0.3,
                        pipes >= 4.1 && < 4.2,
                        pipes-group >= 1.0 && < 1.1,
                        pipes-text >= 0.0 && < 0.1,
+                       pipes-bytestring >= 2.1 && < 2.2,
                        lens >= 4.9 && < 4.10,
                        foldl >= 1.0 && < 1.1
   
