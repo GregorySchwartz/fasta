@@ -42,8 +42,7 @@ fasta = do
     header <- manyTill (satisfy (/= '>')) eol
     fseq <- manyTill anyChar eoe
     return ( FastaSequence { fastaHeader = header
-                           , fastaSeq    = map toUpper
-                                         $ removeWhitespace fseq } )
+                           , fastaSeq    = removeWhitespace fseq } )
   where
     removeWhitespace = filter (`notElem` "\n\r ")
 
