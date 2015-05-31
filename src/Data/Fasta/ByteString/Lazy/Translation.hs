@@ -30,6 +30,7 @@ chunksOf k = go
 
 -- | Converts a codon to an amino acid
 -- Remember, if there is an "N" in that DNA sequence, then it is invalid
+-- and treated as a gap
 codon2aa :: Codon -> Either BL.ByteString BL.ByteString
 codon2aa x
     | codon `elem` ["GCT", "GCC", "GCA", "GCG"]               = Right "A"
@@ -63,8 +64,9 @@ codon2aa x
     codon    = BL.map toUpper x
     errorMsg = BL.append "Unidentified codon: " codon
 
--- | Translates a string of nucleotides. Returns a text with the error if the
--- codon is invalid.
+-- | Translates a bytestring of nucleotides given a reading frame (1, 2, or
+-- 3) -- drops the first 0, 1, or 2 nucleotides respectively. Returns
+-- a bytestring with the error if the codon is invalid.
 translate :: Int64 -> FastaSequence -> Either BL.ByteString FastaSequence
 translate pos x
     | any isLeft' translation = Left $ head . lefts $ translation

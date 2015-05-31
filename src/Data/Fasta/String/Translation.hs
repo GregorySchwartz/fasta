@@ -19,6 +19,7 @@ import Data.Fasta.String.Types
 
 -- | Converts a codon to an amino acid
 -- Remember, if there is an "N" in that DNA sequence, then it is invalid
+-- and treated as a gap
 codon2aa :: Codon -> Either String Char
 codon2aa x
     | codon `elem` ["GCT", "GCC", "GCA", "GCG"]               = Right 'A'
@@ -52,8 +53,9 @@ codon2aa x
     codon    = map toUpper x
     errorMsg = "Unidentified codon: " ++ codon
 
--- | Translates a string of nucleotides. Returns a string with the error if the
--- codon is invalid.
+-- | Translates a string of nucleotides given a reading frame (1, 2, or
+-- 3) -- drops the first 0, 1, or 2 nucleotides respectively. Returns
+-- a string with the error if the codon is invalid.
 translate :: Int -> FastaSequence -> Either String FastaSequence
 translate pos x
     | any isLeft' translation = Left $ head . lefts $ translation
