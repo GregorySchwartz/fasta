@@ -29,8 +29,8 @@ chunksOf k = go
                    | otherwise    -> a : go b
 
 -- | Converts a codon to an amino acid
--- Remember, if there is an "N" in that DNA sequence, then it is invalid
--- and treated as a gap
+-- Remember, if there is an "N" in that DNA sequence, then it is translated
+-- as an X, an unknown amino acid.
 codon2aa :: Codon -> Either BL.ByteString BL.ByteString
 codon2aa x
     | codon `elem` ["GCT", "GCC", "GCA", "GCG"]               = Right "A"
@@ -56,7 +56,7 @@ codon2aa x
     | codon `elem` ["TAA", "TGA", "TAG"]                      = Right "*"
     | codon `elem` ["---", "..."]                             = Right "-"
     | codon == "~~~"                                          = Right "-"
-    | 'N' `BL.elem` codon                                     = Right "-"
+    | 'N' `BL.elem` codon                                     = Right "X"
     | '-' `BL.elem` codon                                     = Right "-"
     | '.' `BL.elem` codon                                     = Right "-"
     | otherwise                                               = Left errorMsg

@@ -19,8 +19,8 @@ import Data.Int
 import Data.Fasta.Text.Lazy.Types
 
 -- | Converts a codon to an amino acid
--- Remember, if there is an "N" in that DNA sequence, then it is invalid
--- and treated as a gap
+-- Remember, if there is an "N" in that DNA sequence, then it is translated
+-- as an X, an unknown amino acid.
 codon2aa :: Codon -> Either T.Text T.Text
 codon2aa x
     | codon `elem` ["GCT", "GCC", "GCA", "GCG"]               = Right "A"
@@ -46,7 +46,7 @@ codon2aa x
     | codon `elem` ["TAA", "TGA", "TAG"]                      = Right "*"
     | codon `elem` ["---", "..."]                             = Right "-"
     | codon == "~~~"                                          = Right "-"
-    | "N" `T.isInfixOf` codon                                 = Right "-"
+    | "N" `T.isInfixOf` codon                                 = Right "X"
     | "-" `T.isInfixOf` codon                                 = Right "-"
     | "." `T.isInfixOf` codon                                 = Right "-"
     | otherwise                                               = Left errorMsg
