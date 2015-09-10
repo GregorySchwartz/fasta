@@ -10,7 +10,7 @@ name:                fasta
 -- PVP summary:      +-+------- breaking API changes
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
-version:             0.8.0.0
+version:             0.8.0.1
 
 -- A short (one-line) description of the package.
 synopsis:            A simple, mindless parser for fasta files.
@@ -82,7 +82,7 @@ library
                        pipes-group >= 1.0 && < 1.1,
                        pipes-text >= 0.0 && < 0.1,
                        pipes-bytestring >= 2.1 && < 2.2,
-                       lens >= 4.9 && < 4.12,
+                       lens >= 4.9 && < 4.13,
                        foldl >= 1.0 && < 1.2
   
   -- Directories containing source files.
