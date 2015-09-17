@@ -9,6 +9,5 @@ While you can use the `parseFasta` function, it is highly recommended to instead
 
 To install:
 ```
-cabal update
-cabal install fasta
+stack install fasta
 ```
