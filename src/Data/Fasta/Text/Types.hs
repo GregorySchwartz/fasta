@@ -1,5 +1,5 @@
 -- Types module.
--- By G.W. Schwartz
+-- By Gregory W. Schwartz
 --
 {- | Collects all application specific types. Used here for Text.
 -}
