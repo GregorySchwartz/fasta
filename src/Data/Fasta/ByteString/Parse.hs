@@ -8,9 +8,12 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE BangPatterns #-}
 
-module Data.Fasta.ByteString.Parse ( parseFasta
-                                   , parseCLIPFasta
+module Data.Fasta.ByteString.Parse ( parsecFasta
+                                   , parsecCLIPFasta
+                                   , attoFasta
+                                   , attoCLIPFasta
                                    , pipesFasta
+                                   , pipesCLIPFasta
                                    , removeNs
                                    , removeN
                                    , removeCLIPNs ) where
@@ -20,13 +23,18 @@ import Data.Char
 import Text.Parsec
 import Text.Parsec.ByteString
 import qualified Data.Map.Strict as Map
+import qualified Data.ByteString as BW
 import qualified Data.ByteString.Char8 as B
+import qualified Control.Applicative as CA
+import Control.Monad (void)
 
 -- Cabal
+import qualified Data.Attoparsec.ByteString.Char8 as A
 import Pipes
 import qualified Pipes.Prelude as P
 import qualified Pipes.ByteString as PB
 import qualified Pipes.Group as PG
+import qualified Pipes.Attoparsec as PA
 import Control.Lens (view)
 import qualified Control.Foldl as FL
 
@@ -69,19 +77,80 @@ fastaCLIPFile = do
     many fastaCLIP
 
 -- | Parse a standard fasta file into text sequences
-parseFasta :: B.ByteString -> [FastaSequence]
-parseFasta = eToV . parse fastaFile "error"
+parsecFasta :: B.ByteString -> [FastaSequence]
+parsecFasta = eToV . parse fastaFile "error"
   where
     eToV (Right x) = x
     eToV (Left x)  = error ("Unable to parse fasta file\n" ++ show x)
 
 -- | Parse a CLIP fasta file into text sequences
-parseCLIPFasta :: B.ByteString -> CloneMap
-parseCLIPFasta = Map.fromList
-               . map (\(!x, (!y, !z)) -> ((x, y), z))
-               . zip [0..]
-               . eToV
-               . parse fastaCLIPFile "error"
+parsecCLIPFasta :: B.ByteString -> CloneMap
+parsecCLIPFasta = Map.fromList
+                . map (\(!x, (!y, !z)) -> ((x, y), z))
+                . zip [0..]
+                . eToV
+                . parse fastaCLIPFile "error"
+  where
+    eToV (Right x) = x
+    eToV (Left x)  = error ("Unable to parse fasta file\n" ++ show x)
+
+-- | attopares any char but space
+anyButSpace :: A.Parser Char
+anyButSpace = do
+    A.skipSpace
+    x <- A.letter_ascii
+    A.skipSpace
+    return x
+
+-- | attoparsec parser for a fasta type
+fasta' :: A.Parser FastaSequence
+fasta' = do
+    header <- A.takeWhile (\x -> x /= '\n' && x /= '\r')
+    A.endOfLine
+    fseq <- A.manyTill anyButSpace (void (A.char '>') CA.<|> A.endOfInput)
+    return FastaSequence { fastaHeader = header
+                         , fastaSeq = B.pack fseq }
+
+-- | attoparsec parser for a fasta file
+fastaFile' :: A.Parser [FastaSequence]
+fastaFile' = do
+    A.skipSpace
+    A.char '>'
+    A.many' fasta'
+
+-- | attoparsec parser for a CLIP fasta sequence
+fastaCLIP' :: A.Parser FastaSequence
+fastaCLIP' = do
+    header <- A.takeWhile (\x -> x /= '\n' && x /= '\r')
+    A.endOfLine
+    fseq <- A.manyTill anyButSpace (void (A.char '>') CA.<|> A.endOfInput)
+    return FastaSequence { fastaHeader = header
+                         , fastaSeq = B.pack fseq }
+
+clone' :: A.Parser (Germline, [FastaSequence])
+clone' = do
+    A.skipSpace
+    germline <- fastaCLIP'
+    fseqs <- A.manyTill fasta' (void (A.char '>') CA.<|> A.endOfInput)
+    return (germline, fseqs)
+
+-- | attoparsec parser for a fasta file
+fastaCLIPFile' :: A.Parser [(Germline, [FastaSequence])]
+fastaCLIPFile' = do
+    A.skipSpace
+    A.string ">>"
+    A.many' clone'
+
+-- | Parse a standard fasta file
+attoFasta :: B.ByteString -> [FastaSequence]
+attoFasta = eToV . A.parseOnly fastaFile'
+  where
+    eToV (Right x) = x
+    eToV (Left x)  = error ("Unable to parse fasta file\n" ++ show x)
+
+-- | Parse a CLIP fasta file into text sequences
+attoCLIPFasta :: B.ByteString -> [(Germline, [FastaSequence])]
+attoCLIPFasta = eToV . A.parseOnly fastaCLIPFile'
   where
     eToV (Right x) = x
     eToV (Left x)  = error ("Unable to parse fasta file\n" ++ show x)
@@ -101,6 +170,14 @@ pipesFasta p = FL.purely
   where
     toFasta x = FastaSequence { fastaHeader = head . B.lines $ x
                               , fastaSeq    = B.concat . tail . B.lines $ x }
+
+-- | Parse a CLIP fasta file into strict text sequences for pipes.
+pipesCLIPFasta :: (MonadIO m)
+               => Producer B.ByteString m ()
+               -> Producer (Germline, [FastaSequence]) m (Either (PA.ParsingError, Producer B.ByteString m ()) ())
+pipesCLIPFasta = PA.parsed clone'
+               . PB.drop 2
+               . PB.dropWhile (`BW.elem` "\n\r\t ")
 
 -- | Remove Ns from a collection of sequences
 removeNs :: [FastaSequence] -> [FastaSequence]
