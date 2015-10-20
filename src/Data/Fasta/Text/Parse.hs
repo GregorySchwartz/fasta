@@ -97,7 +97,7 @@ parsecCLIPFasta = Map.fromList
 anyButSpace :: A.Parser Char
 anyButSpace = do
     A.skipSpace
-    x <- A.letter
+    x <- A.anyChar
     A.skipSpace
     return x
 
