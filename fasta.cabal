@@ -10,7 +10,7 @@ name:                fasta
 -- PVP summary:      +-+------- breaking API changes
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
-version:             0.10.0.0
+version:             0.10.1.0
 
 -- A short (one-line) description of the package.
 synopsis:            A simple, mindless parser for fasta files.
@@ -47,7 +47,8 @@ cabal-version:       >=1.8
 
 library
   -- Modules exported by the library.
-  exposed-modules:    Data.Fasta.String,
+  exposed-modules:    Data.Fasta.Category,
+                      Data.Fasta.String,
                       Data.Fasta.String.Types,
                       Data.Fasta.String.Parse,
                       Data.Fasta.String.Translation,
