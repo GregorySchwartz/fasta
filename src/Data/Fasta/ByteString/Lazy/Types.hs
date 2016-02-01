@@ -18,9 +18,10 @@ data FastaSequence = FastaSequence { fastaHeader :: BL.ByteString
                                    } deriving (Eq, Ord, Show)
 
 -- Basic
+type Codon    = BL.ByteString
+type AA       = Char
 type Clone    = FastaSequence
 type Germline = FastaSequence
-type Codon    = BL.ByteString
 
 -- Advanced
 -- | A clone is a collection of sequences derived from a germline with

@@ -16,6 +16,7 @@ data FastaSequence = FastaSequence { fastaHeader :: String
 
 -- Basic
 type Codon    = String
+type AA       = Char
 type Clone    = FastaSequence
 type Germline = FastaSequence
 

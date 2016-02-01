@@ -5,7 +5,11 @@
 amino acids for strings.
 -}
 
-module Data.Fasta.String.Translation where
+module Data.Fasta.String.Translation ( codon2aa
+                                     , customCodon2aa
+                                     , translate
+                                     , customTranslate
+                                     ) where
 
 -- Built in
 import Data.Either
@@ -20,7 +24,7 @@ import Data.Fasta.String.Types
 -- | Converts a codon to an amino acid
 -- Remember, if there is an "N" in that DNA sequence, then it is translated
 -- as an X, an unknown amino acid.
-codon2aa :: Codon -> Either String Char
+codon2aa :: Codon -> Either String AA
 codon2aa x
     | codon `elem` ["GCT", "GCC", "GCA", "GCG"]               = Right 'A'
     | codon `elem` ["CGT", "CGC", "CGA", "CGG", "AGA", "AGG"] = Right 'R'
@@ -53,15 +57,25 @@ codon2aa x
     codon    = map toUpper x
     errorMsg = "Unidentified codon: " ++ codon
 
+-- | Translate a codon using a custom table
+customCodon2aa :: [(Codon, Char)] -> Codon -> Either String AA
+customCodon2aa table codon = case lookup codon table of
+                                (Just x) -> Right x
+                                Nothing  -> codon2aa codon
+
 -- | Translates a string of nucleotides given a reading frame (1, 2, or
 -- 3) -- drops the first 0, 1, or 2 nucleotides respectively. Returns
--- a string with the error if the codon is invalid.
-translate :: Int -> FastaSequence -> Either String FastaSequence
-translate pos x
+-- a string with the error if the codon is invalid. Also has customized
+-- codon translations as well overriding the defaults.
+customTranslate :: [(Codon, AA)]
+                -> Int
+                -> FastaSequence
+                -> Either String FastaSequence
+customTranslate table pos x
     | any isLeft' translation = Left $ head . lefts $ translation
     | otherwise               = Right $ x { fastaSeq = rights translation }
   where
-    translation = map codon2aa
+    translation = map (customCodon2aa table)
                 . filter ((== 3) . length)
                 . Split.chunksOf 3
                 . drop (pos - 1)
@@ -69,3 +83,9 @@ translate pos x
                 $ x
     isLeft' (Left _) = True
     isLeft' _        = False
+
+-- | Translates a string of nucleotides given a reading frame (1, 2, or
+-- 3) -- drops the first 0, 1, or 2 nucleotides respectively. Returns
+-- a string with the error if the codon is invalid.
+translate :: Int -> FastaSequence -> Either String FastaSequence
+translate = customTranslate []

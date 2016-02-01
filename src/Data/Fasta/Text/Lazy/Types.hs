@@ -18,9 +18,10 @@ data FastaSequence = FastaSequence { fastaHeader :: T.Text
                                    } deriving (Eq, Ord, Show)
 
 -- Basic
+type Codon    = T.Text
+type AA       = Char
 type Clone    = FastaSequence
 type Germline = FastaSequence
-type Codon    = T.Text
 
 -- Advanced
 -- | A clone is a collection of sequences derived from a germline with
