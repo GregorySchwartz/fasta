@@ -6,9 +6,11 @@
 
 module Data.Fasta.Text ( module Data.Fasta.Text.Types
                        , module Data.Fasta.Text.Parse
-                       , module Data.Fasta.Text.Translation ) where
+                       , module Data.Fasta.Text.Translation
+                       , module Data.Fasta.Text.Utility ) where
 
 -- Local
 import Data.Fasta.Text.Types
 import Data.Fasta.Text.Parse
 import Data.Fasta.Text.Translation
+import Data.Fasta.Text.Utility
