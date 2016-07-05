@@ -22,7 +22,7 @@ description: The fasta type specifically split by String, Text, Lazy Text, ByteS
 homepage:            https://github.com/GregorySchwartz/fasta
 
 -- The license under which the package is released.
-license:             GPL-2
+license:             GPL-3
 
 -- The file containing the license text.
 license-file:        LICENSE
