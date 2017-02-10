@@ -10,8 +10,10 @@ module Data.Fasta.ByteString.Utility ( getField
                                      ) where
 
 -- Built in
+import Data.Maybe
 
 -- Cabal
+import Control.Lens
 import qualified Data.ByteString.Char8 as B
 
 -- Local
@@ -21,7 +23,10 @@ import Data.Fasta.Utility
 -- | Gets a 1 indexed field from the header of a fasta sequence using a certain
 -- delimiter.
 getField :: Int -> Char -> FastaSequence -> B.ByteString
-getField field delim = (!! (field - 1)) . B.split delim . fastaHeader
+getField field delim = fromMaybe (error "getField: Field out of bounds in fasta header")
+                     . preview (ix $ field - 1)
+                     . B.split delim
+                     . fastaHeader
 
 -- | Gets the complement of the sequence.
 compl :: FastaSequence -> FastaSequence
