@@ -167,12 +167,13 @@ pipesFasta p = FL.purely PG.folds FL.mconcat ( view (PT.splits '>')
   where
     toFasta x = FastaSequence { fastaHeader = T.fromChunks
                                             . take 1
-                                            . ST.lines
+                                            . lines'
                                             $ x
                               , fastaSeq    = T.fromChunks
                                             . tail
-                                            . ST.lines
+                                            . lines'
                                             $ x }
+    lines'    = ST.lines . ST.filter (/= '\r')
 
 -- | Parse a CLIP fasta file into a pipe
 pipesCLIPFasta :: (MonadIO m)

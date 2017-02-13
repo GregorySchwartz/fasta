@@ -168,8 +168,9 @@ pipesFasta p = FL.purely
                $ p )
            >-> P.map toFasta
   where
-    toFasta x = FastaSequence { fastaHeader = head . B.lines $ x
-                              , fastaSeq    = B.concat . tail . B.lines $ x }
+    toFasta x = FastaSequence { fastaHeader = head . lines' $ x
+                              , fastaSeq    = B.concat . tail . lines' $ x }
+    lines'    = B.lines . B.filter (/= '\r')
 
 -- | Parse a CLIP fasta file into strict text sequences for pipes.
 pipesCLIPFasta :: (MonadIO m)

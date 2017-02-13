@@ -161,8 +161,9 @@ pipesFasta p = FL.purely PG.folds FL.mconcat ( view (PT.splits '>')
                                              $ p )
            >-> P.map toFasta
   where
-    toFasta x = FastaSequence { fastaHeader = head . T.lines $ x
-                              , fastaSeq    = T.concat . tail . T.lines $ x }
+    toFasta x = FastaSequence { fastaHeader = head . lines' $ x
+                              , fastaSeq    = T.concat . tail . lines' $ x }
+    lines'    = T.lines . T.filter (/= '\r')
 
 -- | Parse a CLIP fasta file into a pipe
 pipesCLIPFasta :: (MonadIO m)

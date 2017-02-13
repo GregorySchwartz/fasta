@@ -171,12 +171,13 @@ pipesFasta p = FL.purely
   where
     toFasta x = FastaSequence { fastaHeader = B.fromChunks
                                             . take 1
-                                            . SB.lines
+                                            . lines'
                                             $ x
                               , fastaSeq    = B.fromChunks
                                             . tail
-                                            . SB.lines
+                                            . lines'
                                             $ x }
+    lines'    = SB.lines . SB.filter (/= '\r')
 
 -- | Parse a CLIP fasta file into strict text sequences for pipes.
 pipesCLIPFasta :: (MonadIO m)
